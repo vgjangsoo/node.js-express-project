@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const mongojs = require('mongojs');
 const db = mongojs('customerapp', ['users']);
+const ObjectId = mongojs.ObjectId;
 
 const app = express();
 
@@ -28,7 +29,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res) => {
     db.users.find((err, docs) => {
-        console.log(docs);
+
         res.render('index', {
             title: 'Customers',
             users: docs
@@ -42,7 +43,7 @@ app.post('/users/add', (req, res) => {
         last_name: req.body.last_name,
         email: req.body.email
     };
-    console.log(newUser);
+    
     db.users.insert(newUser, (err, result) => {
         if(err) {
             console.log(err);
@@ -50,6 +51,10 @@ app.post('/users/add', (req, res) => {
         res.redirect('/');
     });
 
+});
+
+app.delete('/users/delete/:id', (req, res) => {
+    db.users.remove({_id: ObjectId(req.params.id)}, () => res.redirect('/'));
 });
 
 app.listen(3000, () => console.log('Server started on port 3000...'));
